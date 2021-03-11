@@ -31,4 +31,5 @@ pipeline {
 				echo 'Integration Test'
 			}
 		}
+	}
 }
