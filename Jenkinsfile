@@ -32,6 +32,7 @@ pipeline {
 
 		stage('Build'){
 			steps {
+				// download all depndencies
 				sh "mvn clean compile"
 			}
 		}
@@ -43,9 +44,37 @@ pipeline {
 		}
 		stage('Integration Test'){
 			steps {
-				sh "mvn failsafe:integeration-test failsafe:verify"
+				sh "mvn failsafe:integration-test failsafe:verify"
 			}
-		} 
+		}
+		stage('Package') {
+			steps {
+				// create jar files and skip tests
+				sh "mvn package -DskipTests"
+			}
+		}
+		stage('Build Docker Image') {
+			steps {
+				// docker build -t  saadabdull4h/currency-exchange-devops:$env.BUILD_TAG
+				script{
+					dockerImage = docker.build("saadabdull4h/currency-exchange-devops:${env.BUILD_TAG}")
+				}
+			}
+		}
+		stage('Push Docker Image') {
+			steps {
+				script{
+					// repo (empty: default), credential id
+					dcoker.withRegistry('', 'dockerhub'){
+						dockerImage.push();
+						// ('<tag>')
+						dockerImage.push('latest');
+					}
+					
+				}
+			}
+		}
+
 	}
 	post {
 		always {
