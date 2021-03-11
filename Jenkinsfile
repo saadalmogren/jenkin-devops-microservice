@@ -49,7 +49,7 @@ pipeline {
 		}
 		stage('Package') {
 			steps {
-				// create jar files and skip tests
+				// create jar files to be used by docker
 				sh "mvn package -DskipTests"
 			}
 		}
@@ -65,7 +65,7 @@ pipeline {
 			steps {
 				script{
 					// repo (empty: default), credential id
-					dcoker.withRegistry('', 'dockerhub'){
+					docker.withRegistry('', 'dockerhub'){
 						dockerImage.push();
 						// ('<tag>')
 						dockerImage.push('latest');
